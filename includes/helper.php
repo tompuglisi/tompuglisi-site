@@ -1,4 +1,6 @@
 <?php
+require_once ('htmlLibrary.php');
+
 function render($template, $data = array()) {
 	$path = __DIR__ . '/../views/templates/' . $template . '.php';
 	if (file_exists ( $path )) {
@@ -6,7 +8,18 @@ function render($template, $data = array()) {
 		require ($path);
 	}
 }
-function getQOTD() {
+
+function showRandomQuote() {
+	$header = 'Random Quote';
+	openElement('div', array('class' => 'container'));
+	openElement('div', array('class' => 'starter-template'));
+	openCloseElement('h1', null, $header);
+	openCloseElement('p', array('class' => 'lead'), getRandomQuote());
+	closeElement('div');
+	closeElement('div');
+}
+
+function getRandomQuote() {
 	$config = include(__DIR__ . '/../config.php');
 	$servername = $config['servername'];
 	$username = $config['username'];
@@ -24,7 +37,7 @@ function getQOTD() {
 	$random = mt_rand ( $range_row["min_id"], $range_row["max_id"]);
 	$result = $conn->query ( "SELECT quote, author FROM quotes WHERE id = $random
 			LIMIT 0,1" );
-	echo mysqli_fetch_assoc($result)["quote"];
 	$conn->close ();
+	return mysqli_fetch_assoc($result)["quote"];
 }
 ?>
