@@ -20,17 +20,10 @@ function showRandomQuote() {
 }
 
 function getRandomQuote() {
-	$config = include(__DIR__ . '/../config.php');
-	$servername = $config['servername'];
-	$username = $config['username'];
-	$password = $config['password'];
-	$dbname = $config['dbname'];
-	$conn = new mysqli ( $servername, $username, $password, $dbname );
-	if ($conn->connect_error) {
-		die ( "Connection failed: " . $conn->connect_error );
-		echo "What's the point?";
+	$connection = getMySQLConnection();
+	if($connection == NULL) {
+		return "What's the point?";
 	}
-	
 	$lastQuoteID = -1;
 	session_start();
 	if(isset($_SESSION['lastQuoteID'])) {
@@ -38,18 +31,31 @@ function getRandomQuote() {
 	}
 	
 	$sql = "SELECT MAX(id) AS max_id, MIN(id) AS min_id FROM quotes";
-	$range_result = $conn->query ( $sql );
+	$range_result = $connection->query($sql);
 	$range_row = mysqli_fetch_assoc($range_result);
 	
 	$random = $lastQuoteID;
 	while($random == $lastQuoteID) {
-		$random = mt_rand ( $range_row["min_id"], $range_row["max_id"]);
+		$random = mt_rand($range_row['min_id'], $range_row['max_id']);
 	}
 	$_SESSION['lastQuoteID'] = $random;
 	session_write_close();
-	$result = $conn->query ( "SELECT quote, author FROM quotes WHERE id = $random
-			LIMIT 0,1" );
-	$conn->close ();
-	return mysqli_fetch_assoc($result)["quote"];
+	$result = $connection->query("SELECT quote, author FROM quotes WHERE id = $random
+			LIMIT 0,1");
+	$connection->close();
+	return mysqli_fetch_assoc($result)['quote'];
+}
+
+function getMySQLConnection() {
+	$config = include(__DIR__ . '/../config.php');
+	$servername = $config['servername'];
+	$username = $config['username'];
+	$password = $config['password'];
+	$dbname = $config['dbname'];
+	$connection = new mysqli($servername, $username, $password, $dbname);
+	if ($connection->connect_error) {
+		return NULL;
+	}
+	return $connection;
 }
 ?>
