@@ -31,10 +31,22 @@ function getRandomQuote() {
 		echo "What's the point?";
 	}
 	
+	$lastQuoteID = -1;
+	session_start();
+	if(isset($_SESSION['lastQuoteID'])) {
+		$lastQuoteID = $_SESSION['lastQuoteID'];
+	}
+	
 	$sql = "SELECT MAX(id) AS max_id, MIN(id) AS min_id FROM quotes";
 	$range_result = $conn->query ( $sql );
 	$range_row = mysqli_fetch_assoc($range_result);
-	$random = mt_rand ( $range_row["min_id"], $range_row["max_id"]);
+	
+	$random = $lastQuoteID;
+	while($random == $lastQuoteID) {
+		$random = mt_rand ( $range_row["min_id"], $range_row["max_id"]);
+	}
+	$_SESSION['lastQuoteID'] = $random;
+	session_write_close();
 	$result = $conn->query ( "SELECT quote, author FROM quotes WHERE id = $random
 			LIMIT 0,1" );
 	$conn->close ();
