@@ -14,7 +14,17 @@ function showRandomQuote() {
 	openElement('div', array('class' => 'container'));
 	openElement('div', array('class' => 'starter-template'));
 	openCloseElement('h1', null, $header);
-	openCloseElement('p', array('class' => 'lead'), getRandomQuote());
+	$quoteArr = getRandomQuote();
+	$quote = $quoteArr['quote'];
+	$author = $quoteArr['author'];
+	openCloseElement('p', array('class' => 'lead'), $quote);
+	if($author != null && $author != 'Anonymous') {
+		openElement('p', array('class' => 'lead'));
+		openCloseElement('a', array('href' => "https://en.wikipedia.org/w/index.php?search=" . urlencode($author)), "-" . $author);
+		closeElement('p');
+	} else {
+		openCloseElement('p', array('class' => 'lead'), "-Anonymous");
+	}
 	closeElement('div');
 	closeElement('div');
 }
@@ -22,7 +32,7 @@ function showRandomQuote() {
 function getRandomQuote() {
 	$connection = getMySQLConnection();
 	if($connection == NULL) {
-		return "What's the point?";
+		return array('quote' => "What's the point?", 'author' => 'Tom Puglisi');
 	}
 	$lastQuoteID = -1;
 	session_start();
@@ -43,7 +53,7 @@ function getRandomQuote() {
 	$result = $connection->query("SELECT quote, author FROM quotes WHERE id = $random
 			LIMIT 0,1");
 	$connection->close();
-	return mysqli_fetch_assoc($result)['quote'];
+	return mysqli_fetch_assoc($result);
 }
 
 function getMySQLConnection() {
