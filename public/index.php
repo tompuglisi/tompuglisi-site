@@ -1,6 +1,8 @@
 <?php
-require_once ('../includes/helper.php');
-render('header', array('title' => 'Hello'));
-showRandomQuote();
-render('footer');
+require_once ('../includes/Helper.php');
+Helper::render('header', array(
+    'title' => 'tompuglisi.com'
+));
+Helper::showRandomQuote();
+Helper::render('footer');
 ?>
